@@ -1,0 +1,17 @@
+{
+  "manifest_version": 2,
+  "name": "nico-skip [v0.2beta]",
+  "version": "0.2",
+  "description": "ニコニコ動画で最初にスキップするボタンを追加します。",
+  "icons": {
+      "48": "icon.png"
+  },
+  "content_scripts": [
+      {
+          "matches": ["*://www.nicovideo.jp/watch/*"],
+          "js": ["script.js"],
+          "css": ["style.css"]
+      }
+  ],
+  "permissions": []
+}
