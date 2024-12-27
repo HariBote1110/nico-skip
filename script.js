@@ -44,7 +44,7 @@ function addReturnToStartButton() {
         simulateClickOnSeekBar(0); // シークバーを操作する関数を呼び出し
     });
 
-    // 「設定」ボタンのクリックイベント
+    // 「自動再生」ボタンのクリックイベント
     autoplayToggle.addEventListener('click', () => {
         console.log('自動再生トグルがクリックされました');
 
