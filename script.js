@@ -142,7 +142,7 @@ observer.observe(document.body, { childList: true, subtree: true });
 // 初期読み込み時にもボタンを追加
 document.addEventListener('DOMContentLoaded', addReturnToStartButton);
 
-// シークバーを指定したパーセンテージ位置でクリックする関数
+// This part of the code is "ニコニコ動画で操作追加" by KT
 function simulateClickOnSeekBar(percent) {
     try {
         const progressBarSelectors = [
