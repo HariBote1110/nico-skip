@@ -39,7 +39,6 @@ function addReturnToStartButton() {
     targetButton2.parentNode.insertBefore(autoplayToggle, targetButton2.nextSibling);
 
     console.log("最初に戻るボタンとトグルボタンを追加しました");
-
     settingButtons.forEach(button => {
         button.addEventListener('click', (event) => {
             if (event.isTrusted) {
@@ -119,6 +118,7 @@ function closeSettings() {
     if (closeButton) closeButton.click();
 }
 
+
 // This function of the code is "ニコニコ動画で操作追加" by KT | MIT license
 function simulateClickOnSeekBar(percent) {
     const progressBar = document.querySelector(
@@ -175,7 +175,6 @@ function stateCheck(autoplayToggle) {
 
     closeSettings();
 }
-
 const observer = new MutationObserver(() => {
     if (!document.querySelector('.return-to-start-button')) {
         addReturnToStartButton();
