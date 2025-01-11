@@ -1,5 +1,5 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "nico-skip [v0.2.4beta]",
   "version": "0.2.4",
   "description": "ニコニコ動画で最初にスキップするボタンを追加します。",
@@ -16,14 +16,8 @@
       }
   ],
   "web_accessible_resources": [
-    {
-        "resources": ["images/loop.png"],
-        "matches": ["<all_urls>"]
-    },
-    {
-      "resources": ["images/loop2.png"],
-      "matches": ["<all_urls>"]
-  }
+      "images/loop.png",
+      "images/loop2.png"
 ],
   "permissions": []
 }
