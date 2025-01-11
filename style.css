@@ -12,7 +12,22 @@
   font-size: 14px;
   text-align: center;
 }
-
+.loop-button {
+  width: 24px;
+  height: 36px;
+  padding: 5px 20px;
+  background-image: url('images/loop.png'); /* ボタンに画像を設定 */
+  margin-left: 8px; /* 隣のボタンとの間隔を調整 */
+  background-repeat: no-repeat; /* 画像の繰り返しを無効化 */
+  background-position: 0px 8px; /* 左上のズレを補正するために調整 */
+  vertical-align: baseline;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  display: inline-block; /* 他の要素との整列を保証 */
+}
 .settings-button:hover {
   background-color: #0056b3; /* ホバー時に濃い青に変更 */
 }
