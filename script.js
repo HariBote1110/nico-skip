@@ -80,9 +80,7 @@ function toggleSettingOption(labelText, button,Trusted) {
         }
 
         updateButtonVisuals(button, labelText, button.dataset.state === 'checked');
-        if (Trusted === 1) {
-
-        }else {
+        if (Trusted === 0) {
             setTimeout(closeSettings, 20);
         }
     }, 20);
@@ -99,7 +97,6 @@ function updateButtonVisuals(button, labelText, isChecked) {
 
 function initializeButtonStates(autoplayToggle, repeatButton,Trusted,settingButton) {
     settingButton.click();
-    console.log("initializeButtonStates")
     const setButtonState = (labelText, button) => {
         setTimeout(() => {
             const option = document.evaluate(
@@ -109,7 +106,6 @@ function initializeButtonStates(autoplayToggle, repeatButton,Trusted,settingButt
                 XPathResult.FIRST_ORDERED_NODE_TYPE,
                 null
             ).singleNodeValue;
-            console.log(option)
             if (!option) return;
             const parent = option.parentNode;
             const nextSibling = parent.nextElementSibling;
@@ -122,9 +118,7 @@ function initializeButtonStates(autoplayToggle, repeatButton,Trusted,settingButt
 
     setButtonState('次の動画を自動再生', autoplayToggle);
     setButtonState('リピート再生', repeatButton);
-    if (Trusted === 1) {
-
-    }else {
+    if (Trusted === 0) {
         setTimeout(closeSettings, 50);
     }
 }
