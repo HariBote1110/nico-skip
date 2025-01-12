@@ -1,202 +1,136 @@
 function addReturnToStartButton() {
-    const rewindButtons = document.querySelectorAll('[aria-label$="秒戻る"]');
-    const skipButtons = document.querySelectorAll('[aria-label$="秒送る"]');
-    const settingButtons = document.querySelectorAll('[aria-label$="設定"]');
+    const buttons = {
+        rewind: document.querySelector('[aria-label$="秒戻る"]'),
+        skip: document.querySelector('[aria-label$="秒送る"]'),
+        setting: document.querySelector('[aria-label$="設定"]'),
+    };
 
-    if (!rewindButtons.length || !settingButtons.length) {
+    if (!buttons.rewind || !buttons.setting) {
         console.error("必要なボタンが見つかりません");
         return;
     }
 
     if (document.querySelector('.return-to-start-button')) return;
 
-    const targetButton = rewindButtons[0];
-    const targetButton2 = skipButtons[0];
+    const createButton = (className, title, textContent = '', onClick) => {
+        const button = document.createElement('button');
+        button.className = className;
+        button.title = title;
+        button.textContent = textContent;
+        button.addEventListener('click', onClick);
+        return button;
+    };
 
-    const repeatButton = document.createElement('button');
-    repeatButton.className = 'loop-button';
-    repeatButton.title = "ループ再生";
-
-    const returnButton = document.createElement('button');
-    returnButton.className = 'return-to-start-button';
-    returnButton.textContent = "|<";
-    returnButton.title = "最初に戻す";
-
-    const autoplayToggle = document.createElement('button');
-    autoplayToggle.title = "自動再生を切り替える";
-
-    settingButtons[0].click();
-    setTimeout(() => stateCheck(autoplayToggle,repeatButton), 200);
-
-    returnButton.addEventListener('click', () => {
+    const returnButton = createButton('return-to-start-button', "最初に戻す", "|<", () => {
         console.log('最初に戻るボタンがクリックされました');
         simulateClickOnSeekBar(0);
     });
 
-    autoplayToggle.addEventListener('click', (event) => {
-        if (event.isTrusted) {
-            toggleAutoplay(autoplayToggle, settingButtons[0]);
-        }
+    const autoplayToggle = createButton('autoplay-toggle', "自動再生を切り替える", '', (event) => {
+        toggleSettingOption('次の動画を自動再生', autoplayToggle);
     });
-    repeatButton.addEventListener('click', (event) => {
-        if (event.isTrusted) {
-            toggleRepeatplay(repeatButton, settingButtons[0]);
-        }
+
+    const repeatButton = createButton('loop-button', "ループ再生", '', (event) => {
+        toggleSettingOption('リピート再生', repeatButton);
     });
-    targetButton.parentNode.insertBefore(returnButton, targetButton);
-    targetButton2.parentNode.insertBefore(autoplayToggle, targetButton2.nextSibling);
+
+    buttons.rewind.parentNode.insertBefore(returnButton, buttons.rewind);
+    buttons.skip.parentNode.insertBefore(autoplayToggle, buttons.skip.nextSibling);
     autoplayToggle.parentNode.insertBefore(repeatButton, autoplayToggle.nextSibling);
 
     console.log("最初に戻るボタンとトグルボタンを追加しました");
-    settingButtons.forEach(button => {
-        button.addEventListener('click', (event) => {
-            if (event.isTrusted) {
-                setTimeout(() => updateAutoplayState(autoplayToggle,repeatButton), 20);
-            }
-        });
+    setTimeout(() => {
+        initializeButtonStates(autoplayToggle, repeatButton, 0,buttons.setting)
+    },500)
+
+    buttons.setting.addEventListener('click', (event) => {
+        if (event.isTrusted) {
+            setTimeout(() => initializeButtonStates(autoplayToggle, repeatButton, 1), 20);
+            console.log("ユーザーが設定をクリック")
+        }
     });
 }
 
-function toggleAutoplay(autoplayToggle, settingButton) {
-    console.log('自動再生トグルがクリックされました');
+function toggleSettingOption(labelText, button,Trusted) {
+    console.log(`${labelText}トグルがクリックされました`);
 
-    settingButton.click();
+    document.querySelector('[aria-label$="設定"]').click();
     setTimeout(() => {
-        const element = document.evaluate(
-            '//span[contains(text(), "次の動画を自動再生")]',
+        const option = document.evaluate(
+            `//span[contains(text(), "${labelText}")]`,
             document,
             null,
             XPathResult.FIRST_ORDERED_NODE_TYPE,
             null
         ).singleNodeValue;
 
-        if (!element) return;
+        if (!option) return;
 
-        const parent = element.parentNode;
+        const parent = option.parentNode;
         const nextSibling = parent.nextElementSibling;
         const onButton = document.getElementById(`${nextSibling.id}:radio:ON`);
         const offButton = document.getElementById(`${nextSibling.id}:radio:OFF`);
 
         if (onButton.dataset.state === 'checked') {
             offButton.click();
-            autoplayToggle.dataset.state = 'unchecked';
-            autoplayToggle.textContent = '○-';
+            button.dataset.state = 'unchecked';
         } else {
             onButton.click();
-            autoplayToggle.dataset.state = 'checked';
-            autoplayToggle.textContent = '-●';
+            button.dataset.state = 'checked';
         }
 
-        setTimeout(() => closeSettings(), 20);
+        updateButtonVisuals(button, labelText, button.dataset.state === 'checked');
+        if (Trusted === 1) {
+
+        }else {
+            setTimeout(closeSettings, 20);
+        }
     }, 20);
 }
 
-function toggleRepeatplay(repeatButton, settingButton) {
-    console.log('ループトグルがクリックされました');
+function updateButtonVisuals(button, labelText, isChecked) {
+    if (labelText === '次の動画を自動再生') {
+        button.textContent = isChecked ? '-●' : '○-';
+    } else if (labelText === 'リピート再生') {
+        const loopIcon = isChecked ? 'images/loop.png' : 'images/loop2.png';
+        button.style.backgroundImage = `url(${browser.runtime.getURL(loopIcon)})`;
+    }
+}
 
+function initializeButtonStates(autoplayToggle, repeatButton,Trusted,settingButton) {
     settingButton.click();
-    setTimeout(() => {
-        const element = document.evaluate(
-            '//span[contains(text(), "リピート再生")]',
-            document,
-            null,
-            XPathResult.FIRST_ORDERED_NODE_TYPE,
-            null
-        ).singleNodeValue;
+    console.log("initializeButtonStates")
+    const setButtonState = (labelText, button) => {
+        setTimeout(() => {
+            const option = document.evaluate(
+                `//span[contains(text(), "${labelText}")]`,
+                document,
+                null,
+                XPathResult.FIRST_ORDERED_NODE_TYPE,
+                null
+            ).singleNodeValue;
+            console.log(option)
+            if (!option) return;
+            const parent = option.parentNode;
+            const nextSibling = parent.nextElementSibling;
+            const onButton = document.getElementById(`${nextSibling.id}:radio:ON`);
+    
+            button.dataset.state = onButton.dataset.state === 'checked' ? 'checked' : 'unchecked';
+            updateButtonVisuals(button, labelText, button.dataset.state === 'checked');
+        },10)
+    };
 
-        if (!element) return;
+    setButtonState('次の動画を自動再生', autoplayToggle);
+    setButtonState('リピート再生', repeatButton);
+    if (Trusted === 1) {
 
-        const parent = element.parentNode;
-        const nextSibling = parent.nextElementSibling;
-        const onButton = document.getElementById(`${nextSibling.id}:radio:ON`);
-        const offButton = document.getElementById(`${nextSibling.id}:radio:OFF`);
-        const loop2 = browser.runtime.getURL("images/loop2.png");
-        const loop = browser.runtime.getURL("images/loop.png");
-        if (onButton.dataset.state === 'checked') {
-            offButton.click();
-            repeatButton.dataset.state = 'unchecked';
-            repeatButton.style.backgroundImage = `url("${loop2}")`;
-        } else {
-            onButton.click();
-            repeatButton.dataset.state = 'checked';
-            repeatButton.style.backgroundImage = `url("${loop}")`;
-        }
-
-        setTimeout(() => closeSettings(), 20);
-    }, 20);
-}
-function updateAutoplayState(autoplayToggle,repeatButton) {
-    const element = document.evaluate(
-        '//span[contains(text(), "次の動画を自動再生")]',
-        document,
-        null,
-        XPathResult.FIRST_ORDERED_NODE_TYPE,
-        null
-    ).singleNodeValue;
-
-    if (!element) return;
-
-    const parent = element.parentNode;
-    const nextSibling = parent.nextElementSibling;
-    const onButton = document.getElementById(`${nextSibling.id}:radio:ON`);
-    const offButton = document.getElementById(`${nextSibling.id}:radio:OFF`);
-
-    onButton.addEventListener('click', (event) => {
-        if (event.isTrusted) {
-            autoplayToggle.dataset.state = 'checked';
-            autoplayToggle.textContent = '-●';
-        }
-    });
-
-    offButton.addEventListener('click', (event) => {
-        if (event.isTrusted) {
-            autoplayToggle.dataset.state = 'unchecked';
-            autoplayToggle.textContent = '○-';
-        }
-    });
-    const elementR = document.evaluate(
-        '//span[contains(text(), "リピート再生")]',
-        document,
-        null,
-        XPathResult.FIRST_ORDERED_NODE_TYPE,
-        null
-    ).singleNodeValue;
-
-    if (!elementR) return;
-
-    const parentR = elementR.parentNode;
-    const nextSiblingR = parentR.nextElementSibling;
-    const onButtonR = document.getElementById(`${nextSiblingR.id}:radio:ON`);
-    const offButtonR = document.getElementById(`${nextSiblingR.id}:radio:OFF`);
-    const loop2 = browser.runtime.getURL("images/loop2.png");
-    const loop = browser.runtime.getURL("images/loop.png");
-    onButtonR.addEventListener('click', (event) => {
-        if (event.isTrusted) {
-            repeatButton.dataset.state = 'unchecked';
-            repeatButton.style.backgroundImage = `url("${loop}")`;
-        }
-    });
-
-    offButtonR.addEventListener('click', (event) => {
-        if (event.isTrusted) {
-            repeatButton.dataset.state = 'unchecked';
-            repeatButton.style.backgroundImage = `url("${loop2}")`;
-        }
-    });
+    }else {
+        setTimeout(closeSettings, 50);
+    }
 }
 
-function closeSettings() {
-    const closeButton = document.querySelector('[aria-label$="Close"]');
-    if (closeButton) closeButton.click();
-}
-
-
-// This function of the code is "ニコニコ動画で操作追加" by KT | MIT license
 function simulateClickOnSeekBar(percent) {
-    const progressBar = document.querySelector(
-        'div.pos_absolute.top_-x0_5.bottom_-x0_5.left_0.right_0.us_none.cursor_pointer,' +
-        'div.pos_absolute.top_-x0_5.bottom_-x0_5.left_0.right_0.select_none.cursor_pointer'
-    );
+    const progressBar = document.querySelector('div.cursor_pointer');
 
     if (!progressBar) {
         console.error('シークバーが見つかりませんでした');
@@ -207,67 +141,22 @@ function simulateClickOnSeekBar(percent) {
     const clickX = rect.left + percent * rect.width;
     const clickY = rect.top + rect.height / 2;
 
-    const createMouseEvent = (type, x, y) => new MouseEvent(type, {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-        clientX: x,
-        clientY: y,
-    });
-
     ['mousedown', 'mouseup', 'click'].forEach(eventType => {
-        progressBar.dispatchEvent(createMouseEvent(eventType, clickX, clickY));
+        progressBar.dispatchEvent(new MouseEvent(eventType, {
+            bubbles: true,
+            cancelable: true,
+            view: window,
+            clientX: clickX,
+            clientY: clickY,
+        }));
     });
 
     console.log(`シークバーの ${Math.round(percent * 100)}% の位置をクリックしました。`);
 }
 
-function stateCheck(autoplayToggle,repeatButton) {
-    const element = document.evaluate(
-        '//span[contains(text(), "次の動画を自動再生")]',
-        document,
-        null,
-        XPathResult.FIRST_ORDERED_NODE_TYPE,
-        null
-    ).singleNodeValue;
-
-    if (!element) return;
-
-    const parent = element.parentNode;
-    const nextSibling = parent.nextElementSibling;
-    const onButton = document.getElementById(`${nextSibling.id}:radio:ON`);
-
-    if (onButton.dataset.state === 'checked') {
-        autoplayToggle.dataset.state = 'checked';
-        autoplayToggle.textContent = '-●';
-    } else {
-        autoplayToggle.dataset.state = 'unchecked';
-        autoplayToggle.textContent = '○-';
-    }
-
-    const elementR = document.evaluate(
-        '//span[contains(text(), "次の動画を自動再生")]',
-        document,
-        null,
-        XPathResult.FIRST_ORDERED_NODE_TYPE,
-        null
-    ).singleNodeValue;
-
-    if (!elementR) return;
-
-    const parentR = elementR.parentNode;
-    const nextSiblingR = parentR.nextElementSibling;
-    const onButtonR = document.getElementById(`${nextSiblingR.id}:radio:ON`);
-    const loop2 = browser.runtime.getURL("images/loop2.png");
-    const loop = browser.runtime.getURL("images/loop.png");
-    if (onButtonR.dataset.state === 'checked') {
-        repeatButton.dataset.state = 'unchecked';
-        repeatButton.style.backgroundImage = `url("${loop}")`;
-    } else {
-        repeatButton.dataset.state = 'checked';
-        repeatButton.style.backgroundImage = `url("${loop2}")`;
-    }
-    closeSettings();
+function closeSettings() {
+    const closeButton = document.querySelector('[aria-label$="Close"]');
+    if (closeButton) closeButton.click();
 }
 
 const observer = new MutationObserver(() => {
