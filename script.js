@@ -1,3 +1,5 @@
+let manifestData = browser.runtime.getManifest();
+console.log(`nico-skip v${manifestData.version} Loaded`); // version
 function addReturnToStartButton() {
     const buttons = {
         rewind: document.querySelector('[aria-label$="秒戻る"]'),
