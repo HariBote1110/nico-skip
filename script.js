@@ -54,7 +54,7 @@ function addReturnToStartButton() {
 }
 
 function toggleSettingOption(labelText, button,Trusted) {
-    console.log(`${labelText}トグルがクリックされました`);
+    console.log(`${labelText}トグルがクリックされました TSO`);
 
     document.querySelector('[aria-label$="設定"]').click();
     setTimeout(() => {
@@ -82,8 +82,8 @@ function toggleSettingOption(labelText, button,Trusted) {
         }
 
         updateButtonVisuals(button, labelText, button.dataset.state === 'checked');
-        if (Trusted === 0) {
-            setTimeout(closeSettings, 20);
+        if (Trusted === 0||Trusted === undefined) {
+            setTimeout(closeSettings, 40);
         }
     }, 20);
 }

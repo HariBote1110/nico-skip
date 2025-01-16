@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "nico-skip [v0.2.5]",
-  "version": "0.2.5",
+  "name": "nico-skip [v0.2.6]",
+  "version": "0.2.6",
   "description": "ニコニコ動画で最初にスキップするボタンを追加します。",
   "icons": {
         "32": "icons/icon_x32.png",
