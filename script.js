@@ -58,6 +58,7 @@ function toggleSettingOption(labelText, button,Trusted) {
 
     document.querySelector('[aria-label$="設定"]').click();
     setTimeout(() => {
+        document.querySelector('[aria-label$="プレーヤー設定"]').style.visibility = 'hidden';
         const option = document.evaluate(
             `//span[contains(text(), "${labelText}")]`,
             document,
@@ -101,6 +102,7 @@ function initializeButtonStates(autoplayToggle, repeatButton,Trusted,settingButt
     settingButton.click();
     const setButtonState = (labelText, button) => {
         setTimeout(() => {
+            document.querySelector('[aria-label$="プレーヤー設定"]').style.visibility = 'hidden';
             const option = document.evaluate(
                 `//span[contains(text(), "${labelText}")]`,
                 document,
